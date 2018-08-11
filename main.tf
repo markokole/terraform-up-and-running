@@ -46,7 +46,8 @@ resource "aws_security_group" "instance" {
 
 resource "aws_autoscaling_group" "example" {
   launch_configuration = "${aws_launch_configuration.example.id}"
-  availability_zones = ["${data.aws_availability_zones.all.names}"]
+  #availability_zones = ["${data.aws_availability_zones.all.names}"]
+  availability_zones = ["${data.aws_availability_zones.available.names[0]}"]
 
   # register each instance in the ELB when the instance is booting
   load_balancers = ["${aws_elb.example.name}"]
@@ -65,7 +66,8 @@ resource "aws_autoscaling_group" "example" {
 # create elastic load balancer for distributing traffic across servers
 resource "aws_elb" "example" {
   name = "terraform-asg-example"
-  availability_zones = ["${data.aws_availability_zones.all.names}"]
+  #availability_zones = ["${data.aws_availability_zones.all.names}"]
+  availability_zones = ["${data.aws_availability_zones.available.names[0]}"]
   security_groups = ["${aws_security_group.elb.id}"]
 
   listener {
