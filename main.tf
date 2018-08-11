@@ -24,9 +24,9 @@ resource "aws_launch_configuration" "example" {
       create_before_destroy = true
     }
 
-    tags {
+    /*tags {
       Name = "terraform-example"
-    }
+    }*/
 }
 
 resource "aws_security_group" "instance" {
