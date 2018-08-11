@@ -11,7 +11,7 @@ provider "aws" {
 resource "aws_launch_configuration" "example" {
     ami = "ami-9887c6e7" # centos 7
     instance_type = "t2.micro"
-    vpc_security_group_ids = ["${aws_security_group.instance.id}"]
+    security_groups = ["${aws_security_group.instance.id}"]
 
     # <<-EOF and EOF are Terraforms heredoc syntax for creating multiline strings
     user_data = <<-EOF
@@ -37,6 +37,10 @@ resource "aws_security_group" "instance" {
       to_port = "${var.server_port}"
       protocol = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    lifecycle{
+      create_before_destroy = true
     }
 }
 
