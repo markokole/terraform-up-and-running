@@ -48,16 +48,63 @@ resource "aws_autoscaling_group" "example" {
   launch_configuration = "${aws_launch_configuration.example.id}"
   availability_zones = ["${data.aws_availability_zones.all.names}"]
 
+  # register each instance in the ELB when the instance is booting
+  load_balancers = ["${aws_elb.example.name}"]
+  health_check_type = "ELB"
+
   min_size = 2
   max_size = 10
+
   tag {
     key = "Name"
     value = "terraform-asg-example"
     propagate_at_launch = true
   }
-
 }
 
-/*output "public_ip" {
-  value = "${aws_launch_configuration.example.pupublic_ip}"
-}*/
+# create elastic load balancer for distributing traffic across servers
+resource "aws_elb" "example" {
+  name = "terraform-asg-example"
+  availability_zones = ["${data.aws_availability_zones.all.names}"]
+  security_groups = ["${aws_security_group.elb.id}"]
+
+  listener {
+    instance_port = 80
+    instance_protocol = "http"
+    lb_port = "${var.server_port}"
+    lb_protocol = "http"
+  }
+
+  #configure health_check for the ELB
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 2
+    timeout = 3
+    target = "HTTP:${var.server_port}/"
+    interval = 30
+  }
+}
+
+# create security group to allow incoming requests on port 80
+resource "aws_security_group" "elb" {
+  name = "terraform-example-elb"
+
+  ingress = {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # to allow health check requests
+  egress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+output "elb_dns_name" {
+  value = "${aws_elb.example.dns_name}"
+}
