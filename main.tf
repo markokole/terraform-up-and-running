@@ -9,7 +9,7 @@ provider "aws" {
 }
 
 resource "aws_launch_configuration" "example" {
-    ami = "ami-9887c6e7" # centos 7
+    image_id = "ami-9887c6e7" # centos 7
     instance_type = "t2.micro"
     security_groups = ["${aws_security_group.instance.id}"]
 
