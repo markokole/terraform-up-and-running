@@ -58,6 +58,6 @@ resource "aws_autoscaling_group" "example" {
 
 }
 
-output "public_ip" {
-  value = "${aws_launch_configuration.example.public_ip}"
-}
+/*output "public_ip" {
+  value = "${aws_launch_configuration.example.pupublic_ip}"
+}*/
