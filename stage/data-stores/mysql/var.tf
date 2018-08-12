@@ -1,3 +1,3 @@
 variable "db_password" {
-  default = "The password for the database"
+  description = "The password for the database"
 }
