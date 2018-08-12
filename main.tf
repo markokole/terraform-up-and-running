@@ -1,5 +1,11 @@
 variable "server_port" {
   description = "The port the server will use for HTTP requests"
+  default = 8080
+}
+
+variable "flask_host" {
+  description = "Host for server flask"
+  default = "0.0.0.0"
 }
 
 data "aws_availability_zones" "all" {}
@@ -16,8 +22,23 @@ resource "aws_launch_configuration" "example" {
     # <<-EOF and EOF are Terraforms heredoc syntax for creating multiline strings
     user_data = <<-EOF
                 #!/bin/bash
-                echo "Hello, World" > index.html
-                nohup busybox httpd -f -p "${var.server_port}" &
+
+            sudo yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+            sudo yum update -y
+            sudo yum install -y python36u python36u-libs python36u-devel python36u-pip python34-setuptools
+            sudo easy_install-3.4 pip
+
+            pip3 install --user flask
+
+            echo "from flask import Flask
+            app = Flask(__name__)
+
+            @app.route('/')
+            def hello_world():
+            return 'Hello, World!'" | tee hello.py
+
+            export FLASK_APP=hello.py
+            flask run --host="${var.flask_host}"
                 EOF
 
     lifecycle {
